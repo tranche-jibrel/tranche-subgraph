@@ -1,5 +1,5 @@
-slice/node_modules/
-**/build/
+node_modules
+build
 generated
 .idea
 .env
