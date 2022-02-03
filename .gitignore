@@ -1,0 +1,6 @@
+slice/node_modules/
+**/build/
+generated
+.idea
+.env
+my
