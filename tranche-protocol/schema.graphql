@@ -1,0 +1,13 @@
+type Tranche @entity {
+  id: ID!
+  ATrancheAddress: String!
+  BTrancheAddress: String!
+}
+
+type TrancheUser @entity {
+  id: ID!
+  address: String!
+  trancheNum: Int!
+  trancheAbalance: BigInt!
+  trancheBbalance: BigInt!
+}
