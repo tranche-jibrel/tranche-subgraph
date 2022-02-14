@@ -16,9 +16,12 @@ dataSources:
       entities:
         - Tranche
         - TrancheUser
+        - TrancheParams
       abis:
         - name: Tranche
           file: ./abis/Tranche.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: TrancheAddedToProtocol(uint256,address,address)
           handler: handleTrancheAdd

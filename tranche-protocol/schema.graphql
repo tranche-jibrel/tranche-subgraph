@@ -2,6 +2,21 @@ type Tranche @entity {
   id: ID!
   ATrancheAddress: String!
   BTrancheAddress: String!
+  trancheAValue: BigInt!
+  trancheBValue: BigInt!
+  buyerCoinAddress: String!
+  dividendCoinAddress: String!
+  contractAddress: String!
+  cryptoType: String!
+  dividendType: String!
+  metaData: TrancheParams!
+}
+
+type TrancheParams @entity {
+  id: ID!
+  cTokenDecimals: BigInt!
+  underlyingDecimals: BigInt!
+  trancheACurrentRPB: BigInt!
 }
 
 type TrancheUser @entity {
