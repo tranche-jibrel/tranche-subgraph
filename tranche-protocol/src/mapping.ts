@@ -1,12 +1,41 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts"
 import {
   TrancheAddedToProtocol, TrancheATokenMinted, TrancheBTokenMinted,
   TrancheATokenRedemption, TrancheBTokenRedemption, Tranche as TrancheContract
 } from "../generated/Tranche/Tranche"
-import { ERC20 } from "../generated/Tranche/ERC20";
+import { JCompound } from '../generated/Tranche-compound/JCompound';
+import { JAave } from '../generated/Tranche-aave/JAave';
 import { Tranche, TrancheUser, TrancheParams } from "../generated/schema"
+import { newTranche, getTrancheId, getTokenSymbol, getUserId, } from './helper';
 
-export function handleTrancheAdd(event: TrancheAddedToProtocol): void {
+
+export function handleJcompound(event: TrancheAddedToProtocol): void {
+  let trancheNum = event.params.trancheNum;
+  let trParams = new TrancheParams(event.transaction.hash.toHexString());
+  let trancheContract = JCompound.bind(event.address);
+  let trancheParams = trancheContract.trancheParameters(trancheNum);
+  trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value6);
+  trParams.trancheACurrentRPB = trancheParams.value3;
+  trParams.save();
+  let trancheObj = handleTrancheAdd(event);
+  trancheObj.metaData = trParams.id;
+  trancheObj.save();
+}
+
+export function handleJAave(event: TrancheAddedToProtocol): void {
+  let trancheNum = event.params.trancheNum;
+  let trParams = new TrancheParams(event.transaction.hash.toHexString());
+  let trancheContract = JAave.bind(event.address);
+  let trancheParams = trancheContract.trancheParameters(trancheNum);
+  trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
+  trParams.trancheACurrentRPB = trancheParams.value3;
+  trParams.save();
+  let trancheObj = handleTrancheAdd(event);
+  trancheObj.metaData = trParams.id;
+  trancheObj.save();
+}
+
+export function handleTrancheAdd(event: TrancheAddedToProtocol): Tranche {
   let trancheNum = event.params.trancheNum;
   let trancheA = event.params.trancheA;
   let trancheB = event.params.trancheB
@@ -18,30 +47,13 @@ export function handleTrancheAdd(event: TrancheAddedToProtocol): void {
   let trancheAddresses = trancheContract.trancheAddresses(trancheNum);
   trancheObj.buyerCoinAddress = trancheAddresses.value0.toHex().toLowerCase();
   trancheObj.dividendCoinAddress = trancheAddresses.value1.toHex().toLowerCase();
-  trancheObj.metaData = trancheMetaData(event, trancheNum, trancheContract).id;
   trancheObj.contractAddress = event.address.toHex().toLowerCase();
   trancheObj.cryptoType = getTokenSymbol(trancheAddresses.value0);
   trancheObj.dividendType = getTokenSymbol(trancheAddresses.value1);
   trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
   trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
   trancheObj.save();
-}
-
-function getBalanceOf(address: Address, userAddress: Address): BigInt {
-  return ERC20.bind(address).balanceOf(userAddress);
-}
-function getTokenSymbol(address: Address): string {
-  return ERC20.bind(address).symbol();
-}
-
-function trancheMetaData(event: TrancheAddedToProtocol, trancheNum: BigInt, trancheContract: TrancheContract): TrancheParams {
-  let trParams = new TrancheParams(event.transaction.hash.toHexString());
-  let trancheParams = trancheContract.trancheParameters(trancheNum);
-  trParams.cTokenDecimals = BigInt.fromI32(trancheParams.value5);
-  trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value6);
-  trParams.trancheACurrentRPB = trancheParams.value3;
-  trParams.save()
-  return trParams;
+  return trancheObj;
 }
 
 export function handleBuyTrancheA(event: TrancheATokenMinted): void {
@@ -124,16 +136,4 @@ export function handleSellTrancheB(event: TrancheBTokenRedemption): void {
   trancheUserObj.save();
 }
 
-function getUserId(address: string, trancheNum: string, user: string): string {
-  return address + '-' + trancheNum + '-' + user;
-}
-function getTrancheId(address: string, trancheNum: string): string {
-  return address + '-' + trancheNum;
-}
 
-function newTranche(id: string, trancheAAddress: string, trancheBAddress: string): Tranche {
-  let trancheObj = new Tranche(id);
-  trancheObj.ATrancheAddress = trancheAAddress
-  trancheObj.BTrancheAddress = trancheBAddress;
-  return trancheObj;
-}

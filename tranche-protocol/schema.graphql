@@ -14,7 +14,6 @@ type Tranche @entity {
 
 type TrancheParams @entity {
   id: ID!
-  cTokenDecimals: BigInt!
   underlyingDecimals: BigInt!
   trancheACurrentRPB: BigInt!
 }
