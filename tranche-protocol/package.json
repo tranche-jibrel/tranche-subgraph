@@ -4,6 +4,12 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "prepare:subgraph": "mustache ./config/${NETWORK:-dev}.json ${BLOCKCHAIN:-ethereum}.subgraph.yaml > subgraph.yaml && rm -rf generated && npm run codegen",
+    "subgraph:deploy:hosted": "graph deploy $SLUG --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy:hosted:mainnet": "BLOCKCHAIN=ethereum NETWORK=mainnet npm run prepare:subgraph && SLUG=hg-tranche/tranche npm run subgraph:deploy:hosted",
+    "deploy:hosted:kovan": "BLOCKCHAIN=ethereum NETWORK=kovan npm run prepare:subgraph && SLUG=hg-tranche/tranche npm run subgraph:deploy:hosted",
+    "deploy:hosted:matic": "BLOCKCHAIN=matic NETWORK=matic npm run prepare:subgraph && SLUG=hg-tranche/tranche_polygon npm run subgraph:deploy:hosted",
+    "deploy:hosted:avalanche": "BLOCKCHAIN=avalanche NETWORK=avalanche npm run prepare:subgraph && SLUG=hg-tranche/tranche npm run subgraph:deploy:hosted",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ tranche-test",
     "create-local": "graph create --node http://localhost:8020/ tranche",
     "remove-local": "graph remove --node http://localhost:8020/ tranche",
@@ -11,6 +17,8 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.26.0",
-    "@graphprotocol/graph-ts": "0.24.1"
+    "@graphprotocol/graph-ts": "0.24.1",
+    "env-cmd": "^10.1.0",
+    "mustache": "^4.2.0"
   }
 }

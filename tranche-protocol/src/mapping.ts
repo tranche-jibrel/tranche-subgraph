@@ -2,9 +2,9 @@ import { BigInt } from "@graphprotocol/graph-ts"
 import {
   TrancheAddedToProtocol, TrancheATokenMinted, TrancheBTokenMinted,
   TrancheATokenRedemption, TrancheBTokenRedemption, Tranche as TrancheContract
-} from "../generated/Tranche/Tranche"
-import { JCompound } from '../generated/Tranche-compound/JCompound';
-import { JAave } from '../generated/Tranche-aave/JAave';
+} from "../generated/Tranche/Tranche";
+import { JAave } from "../generated/Tranche/JAave";
+import { JCompound } from "../generated/Tranche/JCompound";
 import { Tranche, TrancheUser, TrancheParams } from "../generated/schema"
 import { newTranche, getTrancheId, getTokenSymbol, getUserId, } from './helper';
 
@@ -50,8 +50,8 @@ export function handleTrancheAdd(event: TrancheAddedToProtocol): Tranche {
   trancheObj.contractAddress = event.address.toHex().toLowerCase();
   trancheObj.cryptoType = getTokenSymbol(trancheAddresses.value0);
   trancheObj.dividendType = getTokenSymbol(trancheAddresses.value1);
-  trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
-  trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
+  // trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
+  // trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
   trancheObj.save();
   return trancheObj;
 }
