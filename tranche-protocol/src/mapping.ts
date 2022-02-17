@@ -5,6 +5,7 @@ import {
 } from "../generated/Tranche/Tranche";
 import { JAave } from "../generated/Tranche/JAave";
 import { JCompound } from "../generated/Tranche/JCompound";
+import { JYearn } from "../generated/Tranche/JYearn";
 import { Tranche, TrancheUser, TrancheParams } from "../generated/schema"
 import { newTranche, getTrancheId, getTokenSymbol, getUserId, } from './helper';
 
@@ -26,6 +27,20 @@ export function handleJAave(event: TrancheAddedToProtocol): void {
   let trancheNum = event.params.trancheNum;
   let trParams = new TrancheParams(event.transaction.hash.toHexString());
   let trancheContract = JAave.bind(event.address);
+  let trancheParams = trancheContract.trancheParameters(trancheNum);
+  console.log(trancheParams.value5.toString() + '----------'+ trancheParams.value3.toString());
+  trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
+  trParams.trancheACurrentRPB = trancheParams.value3;
+  trParams.save();
+  let trancheObj = handleTrancheAdd(event);
+  trancheObj.metaData = trParams.id;
+  trancheObj.save();
+}
+
+export function handleJYearn(event: TrancheAddedToProtocol): void {
+  let trancheNum = event.params.trancheNum;
+  let trParams = new TrancheParams(event.transaction.hash.toHexString());
+  let trancheContract = JYearn.bind(event.address);
   let trancheParams = trancheContract.trancheParameters(trancheNum);
   trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
   trParams.trancheACurrentRPB = trancheParams.value3;

@@ -6,9 +6,9 @@ dataSources:
     name: Tranche
     network: {{network}}
     source:
-      address: '{{jAave}}'
+      address: '{{jYearn}}'
       abi: Tranche
-      startBlock: {{jAaveStartBlock}}
+      startBlock: {{jYearnStartBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -30,7 +30,7 @@ dataSources:
           file: ./abis/JYearn.json
       eventHandlers:
         - event: TrancheAddedToProtocol(uint256,address,address)
-          handler: handleJAave
+          handler: handleJYearn
         - event: TrancheATokenMinted(uint256,address,uint256,uint256)
           handler: handleBuyTrancheA
         - event: TrancheBTokenMinted(uint256,address,uint256,uint256)

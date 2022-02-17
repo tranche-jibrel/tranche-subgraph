@@ -26,6 +26,8 @@ dataSources:
           file: ./abis/Tranche.json
         - name: JAave
           file: ./abis/JAave.json
+        - name: JYearn
+          file: ./abis/JYearn.json
       eventHandlers:
         - event: TrancheAddedToProtocol(uint256,address,address)
           handler: handleJcompound
