@@ -1,5 +1,7 @@
 {
     "network": "avalanche",
     "jAave": "0x50F0C239f51d470BFDEb2E76E0E76D4344D89D6B",
-    "jAaveStartBlock": 8561564
+    "jAaveStartBlock": 8561564,
+    "jBenqi": "0xCFe4361DE14776D40c736676a281ADE27945D393",
+    "jBenqiStartBlock": 9204224
 }

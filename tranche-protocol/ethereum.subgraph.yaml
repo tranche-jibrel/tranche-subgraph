@@ -28,6 +28,8 @@ dataSources:
           file: ./abis/JAave.json
         - name: JYearn
           file: ./abis/JYearn.json
+        - name: JBenQi
+          file: ./abis/JBenQi.json
       eventHandlers:
         - event: TrancheAddedToProtocol(uint256,address,address)
           handler: handleJcompound
