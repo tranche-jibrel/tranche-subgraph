@@ -29,7 +29,6 @@ export function handleJAave(event: TrancheAddedToProtocol): void {
   let trParams = new TrancheParams(event.transaction.hash.toHexString());
   let trancheContract = JAave.bind(event.address);
   let trancheParams = trancheContract.trancheParameters(trancheNum);
-  console.log(trancheParams.value5.toString() + '----------' + trancheParams.value3.toString());
   trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
   trParams.trancheACurrentRPB = trancheParams.value3;
   trParams.save();
@@ -79,8 +78,8 @@ export function handleTrancheAdd(event: TrancheAddedToProtocol): Tranche {
   trancheObj.contractAddress = event.address.toHex().toLowerCase();
   trancheObj.cryptoType = getTokenSymbol(trancheAddresses.value0);
   trancheObj.dividendType = getTokenSymbol(trancheAddresses.value1);
-  // trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
-  // trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
+  trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
+  trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
   trancheObj.save();
   return trancheObj;
 }
