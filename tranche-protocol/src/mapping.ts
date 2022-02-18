@@ -76,7 +76,11 @@ export function handleTrancheAdd(event: TrancheAddedToProtocol): Tranche {
   trancheObj.buyerCoinAddress = trancheAddresses.value0.toHex().toLowerCase();
   trancheObj.dividendCoinAddress = trancheAddresses.value1.toHex().toLowerCase();
   trancheObj.contractAddress = event.address.toHex().toLowerCase();
-  trancheObj.cryptoType = getTokenSymbol(trancheAddresses.value0);
+  if (trancheObj.buyerCoinAddress != '0x0000000000000000000000000000000000000000' && trancheObj.buyerCoinAddress != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+    trancheObj.cryptoType = getTokenSymbol(trancheAddresses.value0);
+  } else {
+    trancheObj.cryptoType = '0x0000000000000000000000000000000000000000'
+  }
   trancheObj.dividendType = getTokenSymbol(trancheAddresses.value1);
   trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
   trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);

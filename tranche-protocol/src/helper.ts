@@ -6,7 +6,7 @@ export function getBalanceOf(address: Address, userAddress: Address): BigInt {
     return ERC20.bind(address).balanceOf(userAddress);
 }
 export function getTokenSymbol(address: Address): string {
-    return ERC20.bind(address).symbol();
+    return ERC20.bind(address).symbol().toString();
 }
 
 export function getUserId(address: string, trancheNum: string, user: string): string {

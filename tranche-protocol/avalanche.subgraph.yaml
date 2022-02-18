@@ -42,3 +42,43 @@ dataSources:
         - event: TrancheBTokenRedemption(uint256,address,uint256,uint256,uint256)
           handler: handleSellTrancheB
       file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: Tranche-aave
+    network: {{network}}
+    source:
+      address: '{{jAave}}'
+      abi: Tranche
+      startBlock: {{jAaveStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Tranche
+        - TrancheUser
+        - TrancheParams
+      abis:
+        - name: JAave
+          file: ./abis/JAave.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: Tranche
+          file: ./abis/Tranche.json
+        - name: JCompound
+          file: ./abis/JCompound.json
+        - name: JYearn
+          file: ./abis/JYearn.json
+        - name: JBenQi
+          file: ./abis/JBenQi.json
+      eventHandlers:
+        - event: TrancheAddedToProtocol(uint256,address,address)
+          handler: handleJAave
+        - event: TrancheATokenMinted(uint256,address,uint256,uint256)
+          handler: handleBuyTrancheA
+        - event: TrancheBTokenMinted(uint256,address,uint256,uint256)
+          handler: handleBuyTrancheB
+        - event: TrancheATokenRedemption(uint256,address,uint256,uint256,uint256)
+          handler: handleSellTrancheA
+        - event: TrancheBTokenRedemption(uint256,address,uint256,uint256,uint256)
+          handler: handleSellTrancheB
+      file: ./src/mapping.ts
