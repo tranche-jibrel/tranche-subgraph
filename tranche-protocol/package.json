@@ -20,6 +20,7 @@
     "@graphprotocol/graph-cli": "0.26.0",
     "@graphprotocol/graph-ts": "0.24.1",
     "env-cmd": "^10.1.0",
-    "mustache": "^4.2.0"
+    "mustache": "^4.2.0",
+    "source-map-support": "^0.5.21"
   }
 }

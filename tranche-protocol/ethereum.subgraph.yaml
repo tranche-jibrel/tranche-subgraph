@@ -66,7 +66,7 @@ dataSources:
           file: ./abis/Tranche.json
       eventHandlers:
         - event: TrancheAddedToProtocol(uint256,address,address)
-          handler: handleJAave
+          handler: handleJAaveTime
         - event: TrancheATokenMinted(uint256,address,uint256,uint256)
           handler: handleBuyTrancheA
         - event: TrancheBTokenMinted(uint256,address,uint256,uint256)

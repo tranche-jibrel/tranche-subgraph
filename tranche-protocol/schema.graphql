@@ -10,6 +10,11 @@ type Tranche @entity {
   cryptoType: String!
   dividendType: String!
   metaData: TrancheParams!
+  AName: String!
+  BName: String!
+  trancheId: BigInt!
+  AApy: BigInt!
+  BApy: BigInt!
 }
 
 type TrancheParams @entity {

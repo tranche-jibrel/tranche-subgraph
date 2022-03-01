@@ -9,6 +9,10 @@ export function getTokenSymbol(address: Address): string {
     return ERC20.bind(address).symbol().toString();
 }
 
+export function getTokenName(address: Address): string {
+    return ERC20.bind(address).name().toString();
+}
+
 export function getUserId(address: string, trancheNum: string, user: string): string {
     return address + '-' + trancheNum + '-' + user;
 }
@@ -21,4 +25,8 @@ export function newTranche(id: string, trancheAAddress: string, trancheBAddress:
     trancheObj.ATrancheAddress = trancheAAddress
     trancheObj.BTrancheAddress = trancheBAddress;
     return trancheObj;
+}
+
+export function getTrancheAApy(price: BigInt, rpb: BigInt, blocks: BigInt): BigInt {
+    return ((rpb.times(blocks)).div(price)).times(BigInt.fromI32(100))
 }
