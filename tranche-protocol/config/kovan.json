@@ -1,0 +1,7 @@
+{
+    "network": "kovan",
+    "jCompound": "0xc5639ad2431BBf031f70501c70b47C321867367E",
+    "jCompoundStartBlock": 27030667,
+    "jAave": "0xd0cDEf02c83BFeF0A9BD095a454139E87847Ae0B",
+    "jAaveStartBlock": 29306930
+}

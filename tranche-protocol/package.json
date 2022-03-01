@@ -7,7 +7,7 @@
     "prepare:subgraph": "mustache ./config/${NETWORK:-dev}.json ${BLOCKCHAIN:-ethereum}.subgraph.yaml > subgraph.yaml && rm -rf generated && npm run codegen",
     "subgraph:deploy:hosted": "graph deploy $SLUG --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy:hosted:mainnet": "BLOCKCHAIN=ethereum NETWORK=mainnet npm run prepare:subgraph && SLUG=hg-tranche/tranche npm run subgraph:deploy:hosted",
-    "deploy:hosted:kovan": "BLOCKCHAIN=ethereum NETWORK=kovan npm run prepare:subgraph && SLUG=hg-tranche/tranche npm run subgraph:deploy:hosted",
+    "deploy:hosted:kovan": "BLOCKCHAIN=ethereum NETWORK=kovan npm run prepare:subgraph && SLUG=hg-tranche/tranche-kovan npm run subgraph:deploy:hosted",
     "deploy:hosted:matic": "BLOCKCHAIN=matic NETWORK=matic npm run prepare:subgraph && SLUG=hg-tranche/tranche_polygon npm run subgraph:deploy:hosted",
     "deploy:hosted:avalanche": "BLOCKCHAIN=avalanche NETWORK=avalanche npm run prepare:subgraph && SLUG=hg-tranche/tranche-avalanche npm run subgraph:deploy:hosted",
     "deploy:hosted:fantom": "BLOCKCHAIN=fantom NETWORK=fantom npm run prepare:subgraph && SLUG=hg-tranche/tranche-fantom npm run subgraph:deploy:hosted",
