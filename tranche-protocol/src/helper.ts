@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { BigInt, Address, log, BigDecimal } from "@graphprotocol/graph-ts"
 import { ERC20 } from "../generated/Tranche/ERC20";
 import { Tranche } from "../generated/schema";
 
@@ -27,6 +27,9 @@ export function newTranche(id: string, trancheAAddress: string, trancheBAddress:
     return trancheObj;
 }
 
-export function getTrancheAApy(price: BigInt, rpb: BigInt, blocks: BigInt): BigInt {
-    return ((rpb.times(blocks)).div(price)).times(BigInt.fromI32(100))
+export function getTrancheAApy(price: BigInt, rpb: BigInt, blocks: BigInt): BigDecimal {
+    let apyPrice = (rpb.times(blocks).times(BigInt.fromI32(100)));
+    let finalAPY = new BigDecimal(apyPrice).div(new BigDecimal(price)).truncate(3)
+    log.warning('p' + price.toString() + 'r' + rpb.toString() + 'b' + blocks.toString() + 'c' + apyPrice.toString() + 'd' + finalAPY.toString(), []);
+    return finalAPY;
 }

@@ -21,7 +21,8 @@ export function handleJcompound(event: TrancheAddedToProtocol): void {
   trParams.save();
   let trancheObj = handleTrancheAdd(event);
   trancheObj.metaData = trParams.id;
-  trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(2102400));
+  trancheObj.trancheAPYBlock = BigInt.fromI32(2102400);
+  // trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(2102400));
   trancheObj.save();
 }
 export function handleJAaveTime(event: TrancheAddedToProtocol): void {
@@ -38,9 +39,11 @@ export function handleJAave(event: TrancheAddedToProtocol, data: APYType): void 
   let trancheParams = trancheContract.trancheParameters(trancheNum);
   trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
   trParams.trancheACurrentRPB = trancheParams.value3;
+  trParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
   trParams.save();
   let trancheObj = handleTrancheAdd(event);
   trancheObj.metaData = trParams.id;
+  trancheObj.trancheAPYBlock = data.block;
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, data.block);
   trancheObj.save();
 }
@@ -52,9 +55,11 @@ export function handleJYearn(event: TrancheAddedToProtocol): void {
   let trancheParams = trancheContract.trancheParameters(trancheNum);
   trParams.underlyingDecimals = BigInt.fromI32(trancheParams.value5);
   trParams.trancheACurrentRPB = trancheParams.value3;
+  trParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
   trParams.save();
   let trancheObj = handleTrancheAdd(event);
   trancheObj.metaData = trParams.id;
+  trancheObj.trancheAPYBlock = BigInt.fromI32(31557600);
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(31557600));
   trancheObj.save();
 }
@@ -69,6 +74,7 @@ export function handleJBenQi(event: TrancheAddedToProtocol): void {
   trParams.save();
   let trancheObj = handleTrancheAdd(event);
   trancheObj.metaData = trParams.id;
+  trancheObj.trancheAPYBlock = BigInt.fromI32(31557600);
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(31557600));
   trancheObj.save();
 }
@@ -120,6 +126,12 @@ export function handleBuyTrancheA(event: TrancheATokenMinted): void {
   let trancheContract = TrancheContract.bind(event.address);
   if (trancheObj) {
     trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
+    let trancheParams = TrancheParams.load(trancheObj.metaData);
+    if (trancheParams) {
+      trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
+      trancheParams.save();
+      trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);
+    }
     trancheObj.save();
   }
 }

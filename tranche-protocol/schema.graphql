@@ -13,14 +13,16 @@ type Tranche @entity {
   AName: String!
   BName: String!
   trancheId: BigInt!
-  AApy: BigInt!
-  BApy: BigInt!
+  AApy: BigDecimal!
+  BApy: BigDecimal!
+  trancheAPYBlock: BigInt!
 }
 
 type TrancheParams @entity {
   id: ID!
   underlyingDecimals: BigInt!
   trancheACurrentRPB: BigInt!
+  trancheARate: BigInt!
 }
 
 type TrancheUser @entity {
