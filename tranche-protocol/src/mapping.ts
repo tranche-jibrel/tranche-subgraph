@@ -1,4 +1,4 @@
-import { BigInt, Address, log, } from "@graphprotocol/graph-ts"
+import { BigInt, Address, log, BigDecimal } from "@graphprotocol/graph-ts"
 import {
   TrancheAddedToProtocol, TrancheATokenMinted, TrancheBTokenMinted,
   TrancheATokenRedemption, TrancheBTokenRedemption, Tranche as TrancheContract
@@ -22,6 +22,7 @@ export function handleJcompound(event: TrancheAddedToProtocol): void {
   let trancheObj = handleTrancheAdd(event);
   trancheObj.metaData = trParams.id;
   trancheObj.trancheAPYBlock = BigInt.fromI32(2102400);
+  trancheObj.protocolType = 'compound';
   // trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(2102400));
   trancheObj.save();
 }
@@ -45,6 +46,7 @@ export function handleJAave(event: TrancheAddedToProtocol, data: APYType): void 
   trancheObj.metaData = trParams.id;
   trancheObj.trancheAPYBlock = data.block;
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, data.block);
+  trancheObj.protocolType = 'aave';
   trancheObj.save();
 }
 
@@ -61,6 +63,7 @@ export function handleJYearn(event: TrancheAddedToProtocol): void {
   trancheObj.metaData = trParams.id;
   trancheObj.trancheAPYBlock = BigInt.fromI32(31557600);
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(31557600));
+  trancheObj.protocolType = 'yearn';
   trancheObj.save();
 }
 
@@ -76,6 +79,7 @@ export function handleJBenQi(event: TrancheAddedToProtocol): void {
   trancheObj.metaData = trParams.id;
   trancheObj.trancheAPYBlock = BigInt.fromI32(31557600);
   trancheObj.AApy = getTrancheAApy(trancheContract.getTrancheAExchangeRate(trancheNum), trParams.trancheACurrentRPB, BigInt.fromI32(31557600));
+  trancheObj.protocolType = 'benqi';
   trancheObj.save();
 }
 
@@ -122,18 +126,53 @@ export function handleBuyTrancheA(event: TrancheATokenMinted): void {
   }
   trancheUserObj.trancheAbalance = trancheUserObj.trancheAbalance.plus(taAmount)
   trancheUserObj.save();
-  let trancheObj = Tranche.load(getTrancheId(event.address.toHex().toLowerCase(), trancheNum.toString()));
-  let trancheContract = TrancheContract.bind(event.address);
+  afterBuyAndSell(event.address, trancheNum, 'A')
+}
+
+function afterBuyAndSell(address: Address, trancheNum: BigInt, type: string): void {
+  let trancheObj = Tranche.load(getTrancheId(address.toHex().toLowerCase(), trancheNum.toString()));
+  let trancheContract = TrancheContract.bind(address);
   if (trancheObj) {
-    trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
     let trancheParams = TrancheParams.load(trancheObj.metaData);
     if (trancheParams) {
-      trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
-      trancheParams.save();
-      trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);
+      if (type === 'A') {
+        trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
+        trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
+        trancheParams.save();
+        trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);
+      } else {
+        trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
+        trancheObj.BApy = getTrancheBAPY(trancheObj);
+      }
     }
     trancheObj.save();
   }
+}
+
+function getTrancheBAPY(trancheObj: Tranche): BigDecimal {
+  let tra = new BigDecimal(trancheObj.trancheAValue);
+  let trb = new BigDecimal(trancheObj.trancheBValue);
+  let protocolAPY = new BigDecimal(BigInt.fromI32(0));
+  if (trancheObj.protocolType === 'aave') {
+    protocolAPY = getAaveAPY(trancheObj);
+  } else if (trancheObj.protocolType === 'compound') {
+    protocolAPY = getCompoundAPY(trancheObj);
+  }
+  return protocolAPY.plus(tra.div(trb)).times(protocolAPY.minus(trancheObj.AApy)).truncate(3);
+}
+
+function getAaveAPY(trancheObj: Tranche): BigDecimal {
+  let trancheContract = JAave.bind(Address.fromString(trancheObj.contractAddress));
+  let reserverDataObj = trancheContract.getAaveReserveData(trancheObj.trancheId);
+  let reserveRate = reserverDataObj ? reserverDataObj.value3 : BigInt.fromI32(0);
+  let protocolAPY = new BigDecimal(reserveRate).div(new BigDecimal(BigInt.fromI32(10 ** 27)).times(new BigDecimal(BigInt.fromI32(100))));
+  return protocolAPY;
+}
+
+function getCompoundAPY(trancheObj: Tranche): BigDecimal {
+  let trancheContract = JCompound.bind(Address.fromString(trancheObj.contractAddress));
+  let rpb = trancheContract.getCompoundSupplyRPB(trancheObj.trancheId);
+  return new BigDecimal(rpb).div(new BigDecimal(BigInt.fromI32(10 ** 18))).times(new BigDecimal(trancheObj.trancheAPYBlock));
 }
 
 export function handleBuyTrancheB(event: TrancheBTokenMinted): void {
@@ -151,12 +190,7 @@ export function handleBuyTrancheB(event: TrancheBTokenMinted): void {
   }
   trancheUserObj.trancheBbalance = trancheUserObj.trancheBbalance.plus(tbAmount)
   trancheUserObj.save();
-  let trancheObj = Tranche.load(getTrancheId(event.address.toHex().toLowerCase(), trancheNum.toString()));
-  let trancheContract = TrancheContract.bind(event.address);
-  if (trancheObj) {
-    trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
-    trancheObj.save();
-  }
+  afterBuyAndSell(event.address, trancheNum, 'B')
 }
 
 export function handleSellTrancheA(event: TrancheATokenRedemption): void {
@@ -174,6 +208,7 @@ export function handleSellTrancheA(event: TrancheATokenRedemption): void {
   }
   trancheUserObj.trancheAbalance = trancheUserObj.trancheAbalance.minus(amount)
   trancheUserObj.save();
+  afterBuyAndSell(event.address, trancheNum, 'A')
 }
 
 export function handleSellTrancheB(event: TrancheBTokenRedemption): void {
@@ -191,6 +226,5 @@ export function handleSellTrancheB(event: TrancheBTokenRedemption): void {
   }
   trancheUserObj.trancheBbalance = trancheUserObj.trancheBbalance.minus(amount)
   trancheUserObj.save();
+  afterBuyAndSell(event.address, trancheNum, 'B')
 }
-
-
