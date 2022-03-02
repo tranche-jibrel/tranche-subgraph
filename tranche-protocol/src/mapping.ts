@@ -129,23 +129,54 @@ export function handleBuyTrancheA(event: TrancheATokenMinted): void {
   afterBuyAndSell(event.address, trancheNum, 'A')
 }
 
+// function get(type: string, address: Address): JAave | JCompound | JYearn | JBenQi | TrancheContract {
+//   if (type === 'aave') {
+//     return JAave.bind(address);
+//   } else if (type === 'compound') {
+//     return JCompound.bind(address);
+//   } else if (type === 'benqi') {
+//     return JBenQi.bind(address);
+//   } else if (type === 'yearn') {
+//     return JYearn.bind(address);
+//   }
+//   return TrancheContract.bind(address);
+// }
+
+function getCurrentRPB(type: string, address: Address, trancheNum: BigInt): BigInt {
+  if (type == 'aave') {
+    return JAave.bind(address).trancheParameters(trancheNum).value3;
+  } else if (type == 'compound') {
+    return JCompound.bind(address).trancheParameters(trancheNum).value3;
+  } else if (type == 'benqi') {
+    return JBenQi.bind(address).trancheParameters(trancheNum).value3;
+  } else if (type == 'yearn') {
+    return JYearn.bind(address).trancheParameters(trancheNum).value3;
+  } else {
+    return TrancheContract.bind(address).trancheParameters(trancheNum).value3;
+  }
+}
+
 function afterBuyAndSell(address: Address, trancheNum: BigInt, type: string): void {
   let trancheObj = Tranche.load(getTrancheId(address.toHex().toLowerCase(), trancheNum.toString()));
-  let trancheContract = TrancheContract.bind(address);
   if (trancheObj) {
-    let trancheParams = TrancheParams.load(trancheObj.metaData);
-    if (trancheParams) {
-      if (type === 'A') {
-        trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
-        trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
-        trancheParams.save();
-        trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);
-      } else {
-        trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
-        trancheObj.BApy = getTrancheBAPY(trancheObj);
+    let trancheContract = TrancheContract.bind(address);
+    if (trancheContract) {
+      let trancheParams = TrancheParams.load(trancheObj.metaData);
+      if (trancheParams) {
+        if (type === 'A') {
+          trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
+          trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
+          trancheParams.trancheACurrentRPB = getCurrentRPB(trancheObj.protocolType, address, trancheNum);
+          trancheParams.save();
+          trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);
+          trancheObj.BApy = getTrancheBAPY(trancheObj);
+        } else {
+          trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
+          trancheObj.BApy = getTrancheBAPY(trancheObj);
+        }
       }
+      trancheObj.save();
     }
-    trancheObj.save();
   }
 }
 
@@ -153,9 +184,9 @@ function getTrancheBAPY(trancheObj: Tranche): BigDecimal {
   let tra = new BigDecimal(trancheObj.trancheAValue);
   let trb = new BigDecimal(trancheObj.trancheBValue);
   let protocolAPY = new BigDecimal(BigInt.fromI32(0));
-  if (trancheObj.protocolType === 'aave') {
+  if (trancheObj.protocolType == 'aave') {
     protocolAPY = getAaveAPY(trancheObj);
-  } else if (trancheObj.protocolType === 'compound') {
+  } else if (trancheObj.protocolType == 'compound') {
     protocolAPY = getCompoundAPY(trancheObj);
   }
   return protocolAPY.plus(tra.div(trb)).times(protocolAPY.minus(trancheObj.AApy)).truncate(3);
@@ -172,6 +203,7 @@ function getAaveAPY(trancheObj: Tranche): BigDecimal {
 function getCompoundAPY(trancheObj: Tranche): BigDecimal {
   let trancheContract = JCompound.bind(Address.fromString(trancheObj.contractAddress));
   let rpb = trancheContract.getCompoundSupplyRPB(trancheObj.trancheId);
+  log.warning('rbp' + rpb.toString(), []);
   return new BigDecimal(rpb).div(new BigDecimal(BigInt.fromI32(10 ** 18))).times(new BigDecimal(trancheObj.trancheAPYBlock));
 }
 
