@@ -17,6 +17,7 @@ type Tranche @entity {
   BApy: BigDecimal!
   trancheAPYBlock: BigInt!
   protocolType: String!
+  protocolAPY: BigDecimal!
 }
 
 type TrancheParams @entity {

@@ -35,3 +35,12 @@ export function getTrancheAApy(price: BigInt, rpb: BigInt, blocks: BigInt): BigD
 }
 
 export const zeroDecimal = new BigDecimal(BigInt.fromI32(0));
+
+export function exponentToBigDecimal(decimals: i32): BigDecimal {
+    let bd = BigDecimal.fromString('1');
+    let bd10 = BigDecimal.fromString('10');
+    for (let i = 0; i < decimals; i++) {
+        bd = bd.times(bd10);
+    }
+    return bd;
+}
