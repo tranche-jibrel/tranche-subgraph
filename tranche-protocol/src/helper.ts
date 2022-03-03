@@ -30,6 +30,8 @@ export function newTranche(id: string, trancheAAddress: string, trancheBAddress:
 export function getTrancheAApy(price: BigInt, rpb: BigInt, blocks: BigInt): BigDecimal {
     let apyPrice = (rpb.times(blocks).times(BigInt.fromI32(100)));
     let finalAPY = new BigDecimal(apyPrice).div(new BigDecimal(price)).truncate(3)
-    log.warning('p' + price.toString() + 'r' + rpb.toString() + 'b' + blocks.toString() + 'c' + apyPrice.toString() + 'd' + finalAPY.toString(), []);
+    //log.warning('p' + price.toString() + 'r' + rpb.toString() + 'b' + blocks.toString() + 'c' + apyPrice.toString() + 'd' + finalAPY.toString(), []);
     return finalAPY;
 }
+
+export const zeroDecimal = new BigDecimal(BigInt.fromI32(0));

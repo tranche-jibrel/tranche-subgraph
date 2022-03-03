@@ -8,7 +8,7 @@ import { JCompound } from "../generated/Tranche/JCompound";
 import { JYearn } from "../generated/Tranche/JYearn";
 import { JBenQi } from "../generated/Tranche/JBenQi";
 import { Tranche, TrancheUser, TrancheParams } from "../generated/schema"
-import { newTranche, getTrancheId, getTokenSymbol, getUserId, getTokenName, getTrancheAApy } from './helper';
+import { newTranche, getTrancheId, getTokenSymbol, getUserId, getTokenName, getTrancheAApy, zeroDecimal } from './helper';
 import { APYType } from './type';
 
 export function handleJcompound(event: TrancheAddedToProtocol): void {
@@ -189,6 +189,10 @@ function getTrancheBAPY(trancheObj: Tranche): BigDecimal {
   } else if (trancheObj.protocolType == 'compound') {
     protocolAPY = getCompoundAPY(trancheObj);
   }
+  log.warning("protocolAPY" + protocolAPY.toString(), [])
+  if (trb == zeroDecimal) {
+    return zeroDecimal;
+  }
   return protocolAPY.plus(tra.div(trb)).times(protocolAPY.minus(trancheObj.AApy)).truncate(3);
 }
 
@@ -204,6 +208,9 @@ function getCompoundAPY(trancheObj: Tranche): BigDecimal {
   let trancheContract = JCompound.bind(Address.fromString(trancheObj.contractAddress));
   let rpb = trancheContract.getCompoundSupplyRPB(trancheObj.trancheId);
   log.warning('rbp' + rpb.toString(), []);
+  if (rpb === BigInt.fromI32(0)) {
+    return zeroDecimal;
+  }
   return new BigDecimal(rpb).div(new BigDecimal(BigInt.fromI32(10 ** 18))).times(new BigDecimal(trancheObj.trancheAPYBlock));
 }
 
