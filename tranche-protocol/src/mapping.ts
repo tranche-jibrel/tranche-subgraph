@@ -213,8 +213,9 @@ function getCompoundAPY(trancheObj: Tranche): BigDecimal {
   if (rpb === BigInt.fromI32(0)) {
     return zeroDecimal;
   }
-  return rpb.toBigDecimal().div(exponentToBigDecimal(18)).times(trancheObj.trancheAPYBlock.toBigDecimal());
+  return rpb.toBigDecimal().div(exponentToBigDecimal(18)).times(trancheObj.trancheAPYBlock.toBigDecimal()).times(BigInt.fromI32(100).toBigDecimal());
 }
+
 
 export function handleBuyTrancheB(event: TrancheBTokenMinted): void {
   let trancheNum = event.params.trancheNum;
