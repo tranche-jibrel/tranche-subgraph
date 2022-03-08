@@ -1,0 +1,20 @@
+type Staking @entity {
+  id: ID!
+  contractAddress: String!
+  duration: BigInt!
+  totalStaked: BigInt!
+  staked: BigInt!
+  reward: BigInt!
+  totalRewardsDistributed: BigInt!
+}
+
+type StakingUser @entity {
+  id: ID!
+  address: String!
+  contractAddress: String!
+  stakingCounter: BigInt!
+  duration: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  durationIndex: BigInt!
+}

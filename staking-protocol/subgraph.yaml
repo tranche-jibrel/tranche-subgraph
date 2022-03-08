@@ -1,0 +1,29 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: StakingLockup
+    network: mainnet
+    source:
+      address: "0xAB4235a9ACf00A45557E90F7dB127f3b293cA45A"
+      abi: StakingLockup
+      startBlock: 12740438
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Staking
+        - StakingUser
+      abis:
+        - name: StakingLockup
+          file: ./abis/StakingLockup.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLookUpStake
+        - event: RewardsSet(uint256[])
+          handler: handleRewardSet
+        - event: Claimed(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleClaim
+      file: ./src/mapping.ts
