@@ -1,0 +1,5 @@
+{
+    "network": "kovan",
+    "stakingLockup": "0x74486F62064a66C323eeb6B670F2E27103BbF1BA",
+    "stakingLockupStartBlock": 25812631
+}
