@@ -18,13 +18,14 @@ export function handleRewardSet(event: RewardsSet): void {
 
 function storeStakingLookup(index: BigInt, event: RewardsSet): void {
     let stakingContract = StakingLockup.bind(event.address);
-    let duration = index.toI32();
-    let reward = stakingContract.rewardCapForDuration(duration);
-    let totalRewardsDistributed = stakingContract.totalRewardsDistributedForDuration(duration);
-    let staked = stakingContract.totalTokensStakedInDuration(duration);
-    let totalStaked = stakingContract.tokensStakedInDuration(duration);
+    let durationIndex = index.toI32();
+    let reward = stakingContract.rewardCapForDuration(durationIndex);
+    let totalRewardsDistributed = stakingContract.totalRewardsDistributedForDuration(durationIndex);
+    let staked = stakingContract.totalTokensStakedInDuration(durationIndex);
+    let totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
+    let duration = stakingContract.durations(durationIndex);
     let contractAddress = stakingContract._address;
-    let id = getStakingLockupId(contractAddress.toHex().toLowerCase(), index.toString())
+    let id = getStakingLockupId(contractAddress.toHex().toLowerCase(), duration.toString())
     let stakingObject = Staking.load(id);
     if (!stakingObject) {
         stakingObject = new Staking(id);
@@ -33,7 +34,8 @@ function storeStakingLookup(index: BigInt, event: RewardsSet): void {
     stakingObject.staked = staked;
     stakingObject.totalStaked = totalStaked;
     stakingObject.reward = reward;
-    stakingObject.duration = index;
+    stakingObject.durationIndex = index;
+    stakingObject.duration = duration;
     stakingObject.totalRewardsDistributed = totalRewardsDistributed;
     stakingObject.save();
 }
@@ -43,8 +45,61 @@ function getStakingLockupId(address: string, index: string): string {
 }
 
 export function handleLookUpStake(event: Staked): void {
+    let counter = event.params.counter;
+    let startTime = event.params.startTime;
+    let endTime = event.params.endTime;
+    let amount = event.params.amount;
+    let user = event.params.user;
+    let tokensMinted = event.params.tokensMinted;
+    let stakingContract = StakingLockup.bind(event.address);
+    let contractAddress = event.address.toHex().toLowerCase();
+    let userId = getStakingLockupId(contractAddress, counter.toString() + "-" + user.toHex().toLowerCase());
+    let stakingUserObj = StakingUser.load(userId);
+    if (!stakingUserObj) {
+        stakingUserObj = new StakingUser(userId);
+    }
+    let duration = endTime.minus(startTime);
+    stakingUserObj.address = user.toHex().toLowerCase();
+    stakingUserObj.contractAddress = contractAddress;
+    stakingUserObj.stakingCounter = counter;
+    stakingUserObj.deposit = amount;
+    stakingUserObj.reward = tokensMinted.minus(amount)
+    stakingUserObj.startTime = startTime;
+    stakingUserObj.endTime = endTime;
+    stakingUserObj.isActive = true;
+    stakingUserObj.duration = duration;
+    let id = getStakingLockupId(contractAddress, duration.toString())
+    let stakingObj = Staking.load(id);
+    if (stakingObj) {
+        stakingUserObj.durationIndex = stakingObj.durationIndex;
+        let durationIndex = stakingObj.durationIndex.toI32();
+        stakingObj.totalRewardsDistributed = stakingContract.totalRewardsDistributedForDuration(durationIndex);
+        stakingObj.staked = stakingContract.totalTokensStakedInDuration(durationIndex);
+        stakingObj.totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
+        stakingObj.save();
+    }
+    stakingUserObj.save();
 }
 
 export function handleClaim(event: Claimed): void {
-
+    let counter = event.params.counter;
+    let user = event.params.user;
+    let tokensBurned = event.params.tokensBurned;
+    let stakingContract = StakingLockup.bind(event.address);
+    let contractAddress = event.address.toHex().toLowerCase();
+    let userId = getStakingLockupId(contractAddress, counter.toString() + "-" + user.toHex().toLowerCase());
+    let stakingUserObj = StakingUser.load(userId);
+    if (stakingUserObj) {
+        stakingUserObj.withdrawn = tokensBurned;
+        stakingUserObj.isActive = false;
+        let id = getStakingLockupId(contractAddress, stakingUserObj.durationIndex.toString())
+        let stakingObj = Staking.load(id);
+        if (stakingObj) {
+            let durationIndex = stakingObj.durationIndex.toI32();
+            stakingObj.staked = stakingContract.totalTokensStakedInDuration(durationIndex);
+            stakingObj.totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
+            stakingObj.save();
+        }
+        stakingUserObj.save();
+    }
 }
