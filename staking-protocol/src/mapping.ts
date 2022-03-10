@@ -25,7 +25,7 @@ function storeStakingLookup(index: BigInt, event: RewardsSet): void {
     let totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
     let duration = stakingContract.durations(durationIndex);
     let contractAddress = stakingContract._address;
-    let id = getStakingLockupId(contractAddress.toHex().toLowerCase(), duration.toString())
+    let id = getStakingLockupId(contractAddress.toHex().toLowerCase(), durationIndex.toString())
     let stakingObject = Staking.load(id);
     if (!stakingObject) {
         stakingObject = new Staking(id);
@@ -68,15 +68,18 @@ export function handleLookUpStake(event: Staked): void {
     stakingUserObj.endTime = endTime;
     stakingUserObj.isActive = true;
     stakingUserObj.duration = duration;
-    let id = getStakingLockupId(contractAddress, duration.toString())
-    let stakingObj = Staking.load(id);
-    if (stakingObj) {
-        stakingUserObj.durationIndex = stakingObj.durationIndex;
-        let durationIndex = stakingObj.durationIndex.toI32();
-        stakingObj.totalRewardsDistributed = stakingContract.totalRewardsDistributedForDuration(durationIndex);
-        stakingObj.staked = stakingContract.totalTokensStakedInDuration(durationIndex);
-        stakingObj.totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
-        stakingObj.save();
+    let stakingDetails = stakingContract.stakingDetails(user, counter);
+    if (stakingDetails) {
+        let id = getStakingLockupId(contractAddress, stakingDetails.value4.toString())
+        let stakingObj = Staking.load(id);
+        if (stakingObj) {
+            stakingUserObj.durationIndex = stakingObj.durationIndex;
+            let durationIndex = stakingObj.durationIndex.toI32();
+            stakingObj.totalRewardsDistributed = stakingContract.totalRewardsDistributedForDuration(durationIndex);
+            stakingObj.staked = stakingContract.totalTokensStakedInDuration(durationIndex);
+            stakingObj.totalStaked = stakingContract.tokensStakedInDuration(durationIndex);
+            stakingObj.save();
+        }
     }
     stakingUserObj.save();
 }
