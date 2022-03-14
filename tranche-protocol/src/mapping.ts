@@ -105,6 +105,8 @@ export function handleTrancheAdd(event: TrancheAddedToProtocol): Tranche {
   trancheObj.dividendType = getTokenSymbol(trancheAddresses.value1);
   trancheObj.AName = getTokenName(Address.fromString(trancheObj.ATrancheAddress));
   trancheObj.BName = getTokenName(Address.fromString(trancheObj.BTrancheAddress));
+  trancheObj.trancheTokenA = getTokenSymbol(Address.fromString(trancheObj.ATrancheAddress))
+  trancheObj.trancheTokenB = getTokenSymbol(Address.fromString(trancheObj.BTrancheAddress))
   trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
   trancheObj.trancheBValue = trancheContract.getTrBValue(trancheNum);
   trancheObj.save();
@@ -166,6 +168,7 @@ function afterBuyAndSell(address: Address, trancheNum: BigInt, type: string): vo
         if (type === 'A') {
           trancheObj.trancheAValue = trancheContract.getTrAValue(trancheNum);
           trancheParams.trancheARate = trancheContract.getTrancheAExchangeRate(trancheNum);
+          trancheParams.trancheBRate = trancheContract.getTrancheBExchangeRate(trancheNum, BigInt.fromI32(0));
           trancheParams.trancheACurrentRPB = getCurrentRPB(trancheObj.protocolType, address, trancheNum);
           trancheParams.save();
           trancheObj.AApy = getTrancheAApy(trancheParams.trancheARate, trancheParams.trancheACurrentRPB, trancheObj.trancheAPYBlock);

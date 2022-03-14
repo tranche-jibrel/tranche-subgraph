@@ -18,6 +18,8 @@ type Tranche @entity {
   trancheAPYBlock: BigInt!
   protocolType: String!
   protocolAPY: BigDecimal!
+  trancheTokenA: String!
+  trancheTokenB: String!
 }
 
 type TrancheParams @entity {
@@ -25,6 +27,7 @@ type TrancheParams @entity {
   underlyingDecimals: BigInt!
   trancheACurrentRPB: BigInt!
   trancheARate: BigInt!
+  trancheBRate: BigInt!
 }
 
 type TrancheUser @entity {
