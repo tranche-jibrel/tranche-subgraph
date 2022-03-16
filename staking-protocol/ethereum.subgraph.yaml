@@ -19,6 +19,10 @@ dataSources:
       abis:
         - name: StakingLockup
           file: ./abis/StakingLockup.json
+        - name: StakingMilestone
+          file: ./abis/StakingMilestone.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Staked(indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleLookUpStake
@@ -26,4 +30,50 @@ dataSources:
           handler: handleRewardSet
         - event: Claimed(indexed address,uint256,uint256,uint256,uint256)
           handler: handleClaim
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: ETH-SLICE-LP
+    network: {{network}}
+    source:
+      address: '{{stakingMilestone1}}'
+      abi: StakingMilestone
+      startBlock: {{stakingMilestoneBlock1}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Staking
+        - StakingUser
+      abis:
+        - name: StakingMilestone
+          file: ./abis/StakingMilestone.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256)
+          handler: handleLookUpStake
+        - event: Withdraw(indexed address,indexed address,uint256)
+          handler: withdrawLP
+      file: ./src/mapping.ts
+ - kind: ethereum
+    name: ETH-SLICE-LP-Yield
+    network: {{network}}
+    source:
+      address: '{{stakingMilestone1}}'
+      abi: StakingMilestone
+      startBlock: {{stakingMilestoneBlock1}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Staking
+        - StakingUser
+      abis:
+        - name: StakingMilestone
+          file: ./abis/StakingMilestone.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256)
+          handler: handleLookUpStake
+        - event: Withdraw(indexed address,indexed address,uint256)
+          handler: withdrawLP
       file: ./src/mapping.ts

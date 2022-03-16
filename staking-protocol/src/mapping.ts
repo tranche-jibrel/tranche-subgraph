@@ -5,7 +5,59 @@ import {
     Claimed,
     StakingLockup
 } from "../generated/StakingLockup/StakingLockup"
+import {
+    StakingMilestone,
+    Deposit,
+    Withdraw
+} from "../generated/StakingLockup/StakingMilestone"
 import { Staking, StakingUser } from "../generated/schema";
+import { getBalanceOf } from './helper';
+
+export function depositLP(event: Deposit): void {
+    let stakingContract = StakingMilestone.bind(event.address);
+    let contractAddress = event.address.toHex().toLowerCase();
+    let user = event.params.user;
+    let tokenAddress = event.params.tokenAddress
+    let id = getStakingLockupId(contractAddress, tokenAddress.toHex().toLowerCase());
+    let stakingObj = Staking.load(id);
+    if (!stakingObj) {
+        stakingObj = new Staking(id);
+        stakingObj.contractAddress = contractAddress;
+    }
+    stakingObj.staked = getBalanceOf(event.params.tokenAddress, event.params.user);
+    stakingObj.save();
+    let userId = getStakingLockupId(contractAddress, tokenAddress + "-" + user.toHex().toLowerCase());
+    let stakingUserObj = StakingUser.load(userId);
+    if (!stakingUserObj) {
+        stakingUserObj = new StakingUser(userId);
+    }
+    stakingUserObj.address = user.toHex().toLowerCase();
+    stakingUserObj.contractAddress = contractAddress;
+    stakingUserObj.deposit = stakingContract.balanceOf(user, tokenAddress);
+    stakingUserObj.save();
+}
+
+export function withdrawLP(event: Withdraw): void {
+    let stakingContract = StakingMilestone.bind(event.address);
+    let contractAddress = event.address.toHex().toLowerCase();
+    let user = event.params.user;
+    let tokenAddress = event.params.tokenAddress
+    let id = getStakingLockupId(contractAddress, tokenAddress.toHex().toLowerCase());
+    let stakingObj = Staking.load(id);
+    if (stakingObj) {
+        stakingObj.staked = getBalanceOf(event.params.tokenAddress, event.params.user);
+        stakingObj.save();
+    }
+    let userId = getStakingLockupId(contractAddress, tokenAddress + "-" + user.toHex().toLowerCase());
+    let stakingUserObj = StakingUser.load(userId);
+    if (!stakingUserObj) {
+        stakingUserObj = new StakingUser(userId);
+    }
+    stakingUserObj.address = user.toHex().toLowerCase();
+    stakingUserObj.contractAddress = contractAddress;
+    stakingUserObj.deposit = stakingContract.balanceOf(user, tokenAddress);
+    stakingUserObj.save();
+}
 
 export function handleRewardSet(event: RewardsSet): void {
     let stakingContract = StakingLockup.bind(event.address);

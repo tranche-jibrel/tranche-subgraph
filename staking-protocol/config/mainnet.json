@@ -1,5 +1,7 @@
 {
     "network": "mainnet",
     "stakingLockup": "0xAB4235a9ACf00A45557E90F7dB127f3b293cA45A",
-    "stakingLockupStartBlock": 12740438
+    "stakingLockupStartBlock": 12740438,
+    "stakingMilestone1": "0xDaac801BE70a2CA076Fa2C3E0e6795eB098d12Fa",
+    "stakingMilestoneBlock1": ""
 }
