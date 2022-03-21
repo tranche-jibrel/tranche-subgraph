@@ -3,5 +3,11 @@
     "stakingLockup": "0x74486F62064a66C323eeb6B670F2E27103BbF1BA",
     "stakingLockupStartBlock": 25812631,
     "stakingMilestone1": "0x0a2539EDeE189d19931776100cf88Cb85195D927",
-    "stakingMilestoneBlock1": 25967453
+    "stakingMilestoneBlock1": 25967453,
+    "stakingMilestone2": "0x43dd6b33aa34f4bbb8878e09a9bf8ac232a4ca28",
+    "stakingMilestoneBlock2": 25967439,
+    "stakingYield1": "0x2f9c7a511f6a20ce16e20c2a7183944eeed9b81d",
+    "stakingYieldBlock1": 25967453,
+    "stakingYield2": "0xa6a937b6aaaf10f474f83a91a6742d8e0c0932d5",
+    "stakingYieldBlock2": 25967453
 }

@@ -26,7 +26,7 @@ export function depositLP(event: Deposit): void {
     }
     stakingObj.staked = getBalanceOf(event.params.tokenAddress, event.params.user);
     stakingObj.save();
-    let userId = getStakingLockupId(contractAddress, tokenAddress + "-" + user.toHex().toLowerCase());
+    let userId = getStakingLockupId(contractAddress, tokenAddress.toHex().toLowerCase() + "-" + user.toHex().toLowerCase());
     let stakingUserObj = StakingUser.load(userId);
     if (!stakingUserObj) {
         stakingUserObj = new StakingUser(userId);
@@ -48,7 +48,7 @@ export function withdrawLP(event: Withdraw): void {
         stakingObj.staked = getBalanceOf(event.params.tokenAddress, event.params.user);
         stakingObj.save();
     }
-    let userId = getStakingLockupId(contractAddress, tokenAddress + "-" + user.toHex().toLowerCase());
+    let userId = getStakingLockupId(contractAddress, tokenAddress.toHex().toLowerCase() + "-" + user.toHex().toLowerCase());
     let stakingUserObj = StakingUser.load(userId);
     if (!stakingUserObj) {
         stakingUserObj = new StakingUser(userId);
