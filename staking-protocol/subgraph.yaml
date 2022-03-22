@@ -2,13 +2,13 @@ specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: StakingLockup
-    network: kovan
+    network: mainnet
     source:
-      address: '0x74486F62064a66C323eeb6B670F2E27103BbF1BA'
+      address: '0xAB4235a9ACf00A45557E90F7dB127f3b293cA45A'
       abi: StakingLockup
-      startBlock: 25812631
+      startBlock: 12740438
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -23,6 +23,8 @@ dataSources:
           file: ./abis/StakingMilestone.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: YieldFarm
+          file: ./abis/YieldFarm.json
       eventHandlers:
         - event: Staked(indexed address,uint256,uint256,uint256,uint256,uint256)
           handler: handleLookUpStake
@@ -31,13 +33,13 @@ dataSources:
         - event: Claimed(indexed address,uint256,uint256,uint256,uint256)
           handler: handleClaim
       file: ./src/mapping.ts
-  - kind: ethereum
-    name: ETH-SLICE-LP
-    network: kovan
+  - kind: ethereum/contract
+    name: ETH-SLICE-LP-1
+    network: mainnet
     source:
-      address: '0x0a2539EDeE189d19931776100cf88Cb85195D927'
+      address: '0x05db908E095662745595Ee42C9C90aaDC5D51c98'
       abi: StakingMilestone
-      startBlock: 25967453
+      startBlock: 12061753
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -48,9 +50,36 @@ dataSources:
       abis:
         - name: StakingMilestone
           file: ./abis/StakingMilestone.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256)
-          handler: handleLookUpStake
+          handler: depositLP
         - event: Withdraw(indexed address,indexed address,uint256)
-          handler: handleClaim
+          handler: withdrawLP
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: ETH-SLICE-LP-2
+    network: mainnet
+    source:
+      address: '0xBc2834e142bBBa3704D6855c63ca99CfC5b0E929'
+      abi: StakingMilestone
+      startBlock: 12061759
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Staking
+        - StakingUser
+      abis:
+        - name: StakingMilestone
+          file: ./abis/StakingMilestone.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256)
+          handler: depositLP
+        - event: Withdraw(indexed address,indexed address,uint256)
+          handler: withdrawLP
       file: ./src/mapping.ts

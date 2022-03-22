@@ -2,7 +2,7 @@ specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: StakingLockup
     network: {{network}}
     source:
@@ -33,7 +33,7 @@ dataSources:
         - event: Claimed(indexed address,uint256,uint256,uint256,uint256)
           handler: handleClaim
       file: ./src/mapping.ts
-  - kind: ethereum
+  - kind: ethereum/contract
     name: ETH-SLICE-LP-1
     network: {{network}}
     source:
@@ -50,13 +50,15 @@ dataSources:
       abis:
         - name: StakingMilestone
           file: ./abis/StakingMilestone.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256)
-          handler: handleLookUpStake
+          handler: depositLP
         - event: Withdraw(indexed address,indexed address,uint256)
           handler: withdrawLP
       file: ./src/mapping.ts
-  - kind: ethereum
+  - kind: ethereum/contract
     name: ETH-SLICE-LP-2
     network: {{network}}
     source:
@@ -73,55 +75,11 @@ dataSources:
       abis:
         - name: StakingMilestone
           file: ./abis/StakingMilestone.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256)
-          handler: handleLookUpStake
-        - event: Withdraw(indexed address,indexed address,uint256)
-          handler: withdrawLP
-      file: ./src/mapping.ts
-  - kind: ethereum
-    name: ETH-SLICE-LP-Yield-1
-    network: {{network}}
-    source:
-      address: '{{stakingYield1}}'
-      abi: StakingMilestone
-      startBlock: {{stakingYieldBlock1}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Staking
-        - StakingUser
-      abis:
-        - name: StakingMilestone
-          file: ./abis/StakingMilestone.json
-      eventHandlers:
-        - event: Deposit(indexed address,indexed address,uint256)
-          handler: handleLookUpStake
-        - event: Withdraw(indexed address,indexed address,uint256)
-          handler: withdrawLP
-      file: ./src/mapping.ts
-  - kind: ethereum
-    name: ETH-SLICE-LP-Yield-2
-    network: {{network}}
-    source:
-      address: '{{stakingYield2}}'
-      abi: StakingMilestone
-      startBlock: {{stakingYieldBlock2}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Staking
-        - StakingUser
-      abis:
-        - name: StakingMilestone
-          file: ./abis/StakingMilestone.json
-      eventHandlers:
-        - event: Deposit(indexed address,indexed address,uint256)
-          handler: handleLookUpStake
+          handler: depositLP
         - event: Withdraw(indexed address,indexed address,uint256)
           handler: withdrawLP
       file: ./src/mapping.ts
