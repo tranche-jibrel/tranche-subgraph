@@ -17,6 +17,7 @@ dataSources:
         - Tranche
         - TrancheUser
         - TrancheParams
+        - Transaction
       abis:
         - name: JAave
           file: ./abis/JAave.json

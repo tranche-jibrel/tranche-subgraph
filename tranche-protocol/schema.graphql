@@ -37,3 +37,13 @@ type TrancheUser @entity {
   trancheAbalance: BigInt!
   trancheBbalance: BigInt!
 }
+
+type Transaction @entity {
+  id: ID!
+  address: String!
+  trancheNum: Int!
+  contractAddress: String!
+  balance: BigInt!
+  trancheType: String!
+  type: String!
+}

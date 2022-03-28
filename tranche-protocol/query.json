@@ -1,0 +1,12 @@
+{
+    transactions(first: 1000) {
+      id
+      address
+      balance
+      trancheNum
+      contractAddress
+      trancheType
+      type
+    }
+  }
+  

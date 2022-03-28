@@ -7,7 +7,7 @@ import { JAave } from "../generated/Tranche/JAave";
 import { JCompound } from "../generated/Tranche/JCompound";
 import { JYearn } from "../generated/Tranche/JYearn";
 import { JBenQi } from "../generated/Tranche/JBenQi";
-import { Tranche, TrancheUser, TrancheParams } from "../generated/schema"
+import { Tranche, TrancheUser, TrancheParams, Transaction } from "../generated/schema"
 import { newTranche, getTrancheId, getTokenSymbol, getUserId, getTokenName, getTrancheAApy, zeroDecimal, exponentToBigDecimal } from './helper';
 import { APYType } from './type';
 
@@ -129,6 +129,7 @@ export function handleBuyTrancheA(event: TrancheATokenMinted): void {
   trancheUserObj.trancheAbalance = trancheUserObj.trancheAbalance.plus(taAmount)
   trancheUserObj.save();
   afterBuyAndSell(event.address, trancheNum, 'A')
+  saveTransactionDetails(event.transaction.hash.toHexString(), buyer, event.address, trancheNum, 'A', taAmount, 'buy')
 }
 
 // function get(type: string, address: Address): JAave | JCompound | JYearn | JBenQi | TrancheContract {
@@ -155,6 +156,21 @@ function getCurrentRPB(type: string, address: Address, trancheNum: BigInt): BigI
     return JYearn.bind(address).trancheParameters(trancheNum).value3;
   } else {
     return TrancheContract.bind(address).trancheParameters(trancheNum).value3;
+  }
+}
+
+function saveTransactionDetails(id: string, address: Address, contractAddress: Address, trancheNum: BigInt, trancheType: string, balance: BigInt, type: string): void {
+  log.warning("txid=" + id, [])
+  let txObj = Transaction.load(id);
+  if (txObj == null) {
+    txObj = new Transaction(id);
+    txObj.address = address.toHex().toLowerCase();
+    txObj.contractAddress = contractAddress.toHex().toLowerCase();
+    txObj.trancheNum = trancheNum.toI32();
+    txObj.trancheType = trancheType;
+    txObj.type = type;
+    txObj.balance = balance;
+    txObj.save();
   }
 }
 
@@ -236,6 +252,7 @@ export function handleBuyTrancheB(event: TrancheBTokenMinted): void {
   trancheUserObj.trancheBbalance = trancheUserObj.trancheBbalance.plus(tbAmount)
   trancheUserObj.save();
   afterBuyAndSell(event.address, trancheNum, 'B')
+  saveTransactionDetails(event.transaction.hash.toHexString(), buyer, event.address, trancheNum, 'B', tbAmount, 'buy')
 }
 
 export function handleSellTrancheA(event: TrancheATokenRedemption): void {
@@ -254,6 +271,8 @@ export function handleSellTrancheA(event: TrancheATokenRedemption): void {
   trancheUserObj.trancheAbalance = trancheUserObj.trancheAbalance.minus(amount)
   trancheUserObj.save();
   afterBuyAndSell(event.address, trancheNum, 'A')
+  saveTransactionDetails(event.transaction.hash.toHexString(), burner, event.address, trancheNum, 'B', amount, 'sell')
+
 }
 
 export function handleSellTrancheB(event: TrancheBTokenRedemption): void {
@@ -272,4 +291,6 @@ export function handleSellTrancheB(event: TrancheBTokenRedemption): void {
   trancheUserObj.trancheBbalance = trancheUserObj.trancheBbalance.minus(amount)
   trancheUserObj.save();
   afterBuyAndSell(event.address, trancheNum, 'B')
+  saveTransactionDetails(event.transaction.hash.toHexString(), burner, event.address, trancheNum, 'A', amount, 'sell')
+
 }

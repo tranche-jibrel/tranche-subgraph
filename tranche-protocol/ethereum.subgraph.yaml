@@ -17,6 +17,7 @@ dataSources:
         - Tranche
         - TrancheUser
         - TrancheParams
+        - Transaction
       abis:
         - name: JCompound
           file: ./abis/JCompound.json
@@ -57,6 +58,7 @@ dataSources:
         - Tranche
         - TrancheUser
         - TrancheParams
+        - Transaction
       abis:
         - name: JAave
           file: ./abis/JAave.json
